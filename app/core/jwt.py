@@ -2,13 +2,13 @@ from datetime import datetime, timedelta
 from typing import Optional
 import jwt
 from fastapi import Depends, HTTPException, status
-from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
+from starlette.status import HTTP_404_NOT_FOUND
 from jose import JWTError, jwt
 from crud.user import get_user
 from db.mongodb import AsyncIOMotorClient, get_database
 from models.token import TokenData
 from models.user import User
-from .config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_JWT_SUBJECT
+from .config import settings
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
@@ -22,7 +22,7 @@ async def get_current_user(db: AsyncIOMotorClient = Depends(get_database), acces
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username: str = payload.get("username")
         if username is None:
             raise credentials_exception
@@ -46,6 +46,6 @@ def create_access_token(*, data: dict, expires_delta: Optional[timedelta] = None
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire, "sub": ACCESS_TOKEN_JWT_SUBJECT})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    to_encode.update({"exp": expire, "sub": settings.ACCESS_TOKEN_JWT_SUBJECT})
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt

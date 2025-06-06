@@ -85,8 +85,11 @@ async def update_user_profile(
 
     return profileInUpdate
 
-
-
+#NOTE
+"""
+This is just a fun endpoint, in real games, adding points must be based on completion of some activity.
+This endpoint should be protected so that user cannot himself add points in his profile.
+"""
 @router.put("/{points}", response_model= ProfileInDB, tags= ["profiles"])
 async def add_points_to_user_profile(
     points = Path(...),

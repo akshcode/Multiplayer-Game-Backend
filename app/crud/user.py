@@ -1,6 +1,6 @@
 from db.mongodb import AsyncIOMotorClient
 from pydantic import EmailStr
-from core.config import database_name, users_collection_name
+from core.config import settings
 from models.user import UserInRegister, UserInDB, UserInUpdate, UserInLogin, UserInDB, User
 from starlette.status import HTTP_400_BAD_REQUEST
 from starlette.exceptions import HTTPException
@@ -8,14 +8,14 @@ from datetime import datetime
 
 
 async def get_user(conn: AsyncIOMotorClient, username: str) -> UserInDB:
-    row = await conn[database_name][users_collection_name].find_one({"username": username})
+    row = await conn[settings.DB_NAME][settings.USERS_COLLECTION_NAME].find_one({"username": username})
     if row:
         dbuser = UserInDB(**row)
         dbuser.id = str(row["_id"])
         return dbuser
 
 async def get_user_by_email(conn: AsyncIOMotorClient, email: EmailStr) -> UserInDB:
-    row = await conn[database_name][users_collection_name].find_one({"email": email})
+    row = await conn[settings.DB_NAME][settings.USERS_COLLECTION_NAME].find_one({"email": email})
     if row:
         dbuser = UserInDB(**row)
         dbuser.id = str(row["_id"])
@@ -27,7 +27,7 @@ async def create_user(conn: AsyncIOMotorClient, user: UserInRegister) -> UserInD
     dbuser.created_at = datetime.now()
     dbuser.updated_at = datetime.now()
 
-    inserted_row = await conn[database_name][users_collection_name].insert_one(dbuser.dict())
+    inserted_row = await conn[settings.DB_NAME][settings.USERS_COLLECTION_NAME].insert_one(dbuser.dict())
     dbuser.id = str(inserted_row.inserted_id)
 
     return dbuser
@@ -42,14 +42,14 @@ async def update_user(conn: AsyncIOMotorClient, username: str, user: UserInUpdat
         dbuser.change_password(user.password)
 
     dbuser.updated_at = datetime.now()
-    await conn[database_name][users_collection_name].update_one({"username": dbuser.username}, {'$set': dbuser.dict()})
+    await conn[settings.DB_NAME][settings.USERS_COLLECTION_NAME].update_one({"username": dbuser.username}, {'$set': dbuser.dict()})
     return dbuser
 
 
 async def delete_user(conn: AsyncIOMotorClient, user : UserInLogin) -> UserInDB:
     dbuser = await get_user(conn, user.username)
     try:
-        await conn[database_name][users_collection_name].delete_one({"email": user.email})
+        await conn[settings.DB_NAME][settings.USERS_COLLECTION_NAME].delete_one({"email": user.email})
     except Exception as e:
         print(e)
 

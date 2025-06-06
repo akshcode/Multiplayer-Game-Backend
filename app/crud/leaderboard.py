@@ -2,7 +2,7 @@ from typing import Optional, List
 from fastapi.param_functions import Query
 from starlette.exceptions import HTTPException
 from db.mongodb import AsyncIOMotorClient
-from core.config import database_name, profiles_collection_name
+from core.config import settings
 from models.profile import Country, ProfileInLeaderboard
 
 
@@ -14,10 +14,10 @@ async def get_leaderboard(
 
     cursor_list = []
     if by_country:
-        leaderboard_cursor = conn[database_name][profiles_collection_name].find({"country": by_country}, { "username": 1, "country": 1, "points": 1}).sort([("points", -1)])
+        leaderboard_cursor = conn[settings.DB_NAME][settings.PROFILES_COLLECTION_NAME].find({"country": by_country}, { "username": 1, "country": 1, "points": 1}).sort([("points", -1)])
         cursor_list = await leaderboard_cursor.to_list(length = length)
     else:
-        leaderboard_cursor = conn[database_name][profiles_collection_name].find({},{ "username": 1, "country": 1, "points": 1}).sort([("points", -1)])
+        leaderboard_cursor = conn[settings.DB_NAME][settings.PROFILES_COLLECTION_NAME].find({},{ "username": 1, "country": 1, "points": 1}).sort([("points", -1)])
         cursor_list = await leaderboard_cursor.to_list(length = length)
     
     leaderboard = []

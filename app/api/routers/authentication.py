@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette.exceptions import HTTPException
 from starlette.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
-from core.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from core.config import settings
 from core.jwt import create_access_token
 from crud.shortcuts import check_free_username_and_email
 from crud.user import create_user, get_user
@@ -24,7 +24,7 @@ async def login(
             status_code=HTTP_400_BAD_REQUEST, detail="Incorrect email or password"
         )
 
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     token = create_access_token(
         data={"username": dbuser.username}, expires_delta=access_token_expires
     )
@@ -40,7 +40,7 @@ async def register(
     async with await db.start_session() as s:
         async with s.start_transaction():
             dbuser = await create_user(db, user)
-            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
             token = create_access_token(
                 data={"username": dbuser.username}, expires_delta=access_token_expires
             )

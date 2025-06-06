@@ -1,5 +1,5 @@
 .venv
 .vscode
 *.pyc
-app/core/config.py
 app/log.txt
+.env

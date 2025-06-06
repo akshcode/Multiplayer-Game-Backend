@@ -1,12 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 from api.api import router as api_router
-from core.config import PROJECT_NAME
+from core.config import settings
 from db.mongodb_utils import close_mongo_connection, connect_to_mongo
 from starlette.middleware.cors import CORSMiddleware
 from middlewares.security_headers import SecurityHeadersMiddleware
 
-app = FastAPI(title=PROJECT_NAME)
+app = FastAPI(title=settings.PROJECT_NAME)
 
 app.add_middleware(SecurityHeadersMiddleware)
 
