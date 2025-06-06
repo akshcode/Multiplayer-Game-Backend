@@ -21,5 +21,5 @@ jobs:
       run: docker build . -t akshcode/multiplayergame:latest
     - name: push image to docker Hub
       run: |
-        docker login -u akshcode -p ${{ settings.DOCKER_HUB_TOKEN }}
+        docker login -u akshcode -p ${{ secrets.DOCKER_HUB_TOKEN }}
         docker push akshcode/multiplayergame:latest
