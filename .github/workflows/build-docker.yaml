@@ -1,0 +1,24 @@
+name: Build and Publish Image to Docker Hub
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+  workflow_dispatch:
+
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker image
+      run: docker build . -t akshcode/multiplayergame:latest
+    - name: push image to docker Hub
+      run: |
+        docker push akshcode/multiplayergame:latest
